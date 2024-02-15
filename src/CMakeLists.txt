@@ -7,8 +7,7 @@ qt_add_qml_module(Citty
         URI main
         QML_FILES
         views/Citty.qml
-        views/WelcomeView.qml
-        views/CreateProjectView.qml
+        views/SelectionArea.qml
 )
 
 qt_import_plugins(Citty
@@ -21,5 +20,6 @@ target_link_libraries(Citty
         Qt6::Qml
         Qt6::Quick
         Qt6::QuickLayouts
+        Qt6::Location
         Qt6::WaylandClient
 )

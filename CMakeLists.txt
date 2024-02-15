@@ -13,6 +13,8 @@ find_package(Qt6
         Gui
         Quick
         QuickLayouts
+        Location
+        Positioning
         WaylandClient
 )
 
