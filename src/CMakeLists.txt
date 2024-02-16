@@ -1,13 +1,18 @@
 qt_add_executable(Citty
         main.cpp
-        citty.qrc
 )
+
+target_include_directories(Citty PRIVATE interfaces)
 
 qt_add_qml_module(Citty
         URI main
+        SOURCES
+        interfaces/OsmImporterInterface.cpp
+        interfaces/OsmImporterInterface.hpp
         QML_FILES
         views/Citty.qml
         views/SelectionArea.qml
+        views/OsmImportDialog.qml
 )
 
 qt_import_plugins(Citty
