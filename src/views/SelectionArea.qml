@@ -10,6 +10,11 @@ Rectangle {
     color: '#354682B4'
 
     property int rulersSize: 18
+    property int minWidth: 0
+    property int minHeight: 0
+
+    width: minWidth
+    height: minHeight
 
     MouseArea {     // drag mouse area
         anchors.fill: parent
@@ -28,6 +33,7 @@ Rectangle {
     }
 
     Rectangle {
+        id: leftHandle
         width: rulersSize
         height: rulersSize
         radius: rulersSize
@@ -42,16 +48,22 @@ Rectangle {
             }
             onMouseXChanged: {
                 if (drag.active) {
-                    selectionArea.width = selectionArea.width - mouseX
-                    selectionArea.x = selectionArea.x + mouseX
-                    if (selectionArea.width < 30)
-                        selectionArea.width = 30
+                    const updatedWidth = selectionArea.width - mouseX;
+                    const updatedX = selectionArea.x + mouseX
+                    if (updatedX >= 0 && updatedWidth >= minWidth) {
+                        selectionArea.width = updatedWidth
+                        selectionArea.x = updatedX
+                    }
+
+
+                    if (selectionArea.width < minWidth) selectionArea.width = minWidth
                 }
             }
         }
     }
 
     Rectangle {
+        id: rightHandle
         width: rulersSize
         height: rulersSize
         radius: rulersSize
@@ -66,15 +78,20 @@ Rectangle {
             }
             onMouseXChanged: {
                 if (drag.active) {
-                    selectionArea.width = selectionArea.width + mouseX
-                    if (selectionArea.width < 50)
-                        selectionArea.width = 50
+                    const updatedWidth = selectionArea.width + mouseX;
+
+                    if (selectionArea.x + updatedWidth <= selectionArea.parent.width) {
+                        selectionArea.width = updatedWidth;
+                    }
+
+                    if (selectionArea.width < minWidth) selectionArea.width = minWidth;
                 }
             }
         }
     }
 
     Rectangle {
+        id: topHandle
         width: rulersSize
         height: rulersSize
         radius: rulersSize
@@ -91,10 +108,15 @@ Rectangle {
             }
             onMouseYChanged: {
                 if (drag.active) {
-                    selectionArea.height = selectionArea.height - mouseY
-                    selectionArea.y = selectionArea.y + mouseY
-                    if (selectionArea.height < 50)
-                        selectionArea.height = 50
+                    const updatedHeight = selectionArea.height - mouseY;
+                    const updatedY = selectionArea.y + mouseY
+
+                    if (updatedY >= 0 & updatedHeight >= minHeight) {
+                        selectionArea.height = updatedHeight;
+                        selectionArea.y = updatedY;
+                    }
+
+                    if (selectionArea.height < minHeight) selectionArea.height = minHeight
                 }
             }
         }
@@ -102,6 +124,7 @@ Rectangle {
 
 
     Rectangle {
+        id: bottomHandle
         width: rulersSize
         height: rulersSize
         radius: rulersSize
@@ -118,9 +141,12 @@ Rectangle {
             }
             onMouseYChanged: {
                 if (drag.active) {
-                    selectionArea.height = selectionArea.height + mouseY
-                    if (selectionArea.height < 50)
-                        selectionArea.height = 50
+                    const updatedHeight = selectionArea.height + mouseY;
+
+                    if (selectionArea.y + updatedHeight <= selectionArea.parent.height) {
+                        selectionArea.height = updatedHeight;
+                    }
+                    if (selectionArea.height < minHeight) selectionArea.height = minHeight
                 }
             }
         }

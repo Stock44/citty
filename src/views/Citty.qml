@@ -38,17 +38,10 @@ ApplicationWindow {
         width: 512
         height: 512
 
-
-        MouseArea {
-            id: mouseArea
-            anchors.fill: parent
-            drag.target: item
-            propagateComposedEvents: true
-            onReleased: item.Drag.drop()
-        }
-
         SelectionArea {
-            z: 50
+            z: 20
+            minWidth: 128
+            minHeight: 128
         }
 
         Map {
@@ -56,6 +49,7 @@ ApplicationWindow {
             plugin: mapPlugin
             center: QtPositioning.coordinate(59.91, 10.75)
             anchors.fill: parent
+            z: 10
 
             PinchHandler {
                 id: pinch
