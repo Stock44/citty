@@ -1,5 +1,7 @@
 qt_add_executable(Citty
         main.cpp
+        OsmMapImporter.cpp
+        OsmMapImporter.hpp
 )
 
 target_include_directories(Citty PRIVATE interfaces)

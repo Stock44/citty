@@ -1,29 +1,35 @@
-#include <QtPlugin>
-#include <QQmlApplicationEngine>
-#include <QGuiApplication>
-#include <QDirIterator>
-#include <iostream>
-#include <QtQml>
+#include "OsmMapImporter.hpp"
 #include "interfaces/OsmImporterInterface.hpp"
-
+#include <QDirIterator>
+#include <QGuiApplication>
+#include <QQmlApplicationEngine>
+#include <QtPlugin>
+#include <QtQml>
+#include <iostream>
 
 int main(int argc, char *argv[]) {
-    QGuiApplication app(argc, argv);
+  using namespace citty;
 
-    QQmlApplicationEngine engine;
-    const auto url = QUrl("qrc:/main/views/Citty.qml");
+  QGuiApplication app(argc, argv);
 
-    QObject::connect(&engine, &QQmlApplicationEngine::objectCreated,
-                     &app, [url](QObject *obj, const QUrl &objUrl) {
-                if (!obj && url == objUrl)
-                    QCoreApplication::exit(-1);
-            }, Qt::QueuedConnection);
+  QQmlApplicationEngine engine;
+  const auto url = QUrl("qrc:/main/views/Citty.qml");
 
-    engine.setInitialProperties({
-                                        {"osmImporter", QVariant::fromValue(new citty::OsmImporterInterface)}
-                                });
+  QObject::connect(
+      &engine, &QQmlApplicationEngine::objectCreated, &app,
+      [url](QObject *obj, const QUrl &objUrl) {
+        if (!obj && url == objUrl)
+          QCoreApplication::exit(-1);
+      },
+      Qt::QueuedConnection);
 
-    engine.load(url);
+  auto osmImporter = OsmMapImporter();
 
-    return QGuiApplication::exec();
+  engine.setInitialProperties(
+      {{"osmImporter",
+        QVariant::fromValue(new citty::OsmImporterInterface(osmImporter))}});
+
+  engine.load(url);
+
+  return QGuiApplication::exec();
 }

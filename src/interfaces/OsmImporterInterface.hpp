@@ -3,21 +3,27 @@
 //
 #pragma once
 
-#include <QtQmlIntegration>
+#include "OsmMapImporter.hpp"
 #include <QGeoCoordinate>
+#include <QtQmlIntegration>
 #include <iostream>
 
 namespace citty {
 
-    class OsmImporterInterface : public QObject {
-    Q_OBJECT;
+class OsmImporterInterface : public QObject {
+  Q_OBJECT;
 
-        QML_ELEMENT;
-        QML_UNCREATABLE("Passed from root component to OSM import dialog.");
+  QML_ELEMENT;
+  QML_UNCREATABLE("Passed from root component to OSM import dialog.");
 
-    public:
-        Q_INVOKABLE void
-        importOsmRegion(const QGeoCoordinate &c1, const QGeoCoordinate &c2);
-    };
+public:
+  explicit OsmImporterInterface(OsmMapImporter &importer);
 
-} // citty
+  Q_INVOKABLE
+  void importOsmRegion(const QGeoCoordinate &c1, const QGeoCoordinate &c2);
+
+private:
+  OsmMapImporter &importer;
+};
+
+} // namespace citty
