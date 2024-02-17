@@ -16,6 +16,7 @@ find_package(Qt6
         Location
         Positioning
         WaylandClient
+        Network
 )
 
 qt_standard_project_setup()

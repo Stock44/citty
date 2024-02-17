@@ -4,7 +4,9 @@ qt_add_executable(Citty
         OsmMapImporter.hpp
 )
 
-target_include_directories(Citty PRIVATE interfaces)
+find_path(OSMIUM_INCLUDE_DIRS "osmium/version.hpp")
+
+target_include_directories(Citty PRIVATE ${OSMIUM_INCLUDE_DIRS} interfaces)
 
 qt_add_qml_module(Citty
         URI main
@@ -28,5 +30,6 @@ target_link_libraries(Citty
         Qt6::Quick
         Qt6::QuickLayouts
         Qt6::Location
+        Qt6::Network
         Qt6::WaylandClient
 )

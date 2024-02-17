@@ -13,6 +13,8 @@ class OsmMapImporter {
 public:
   void import(const QGeoCoordinate &corner1, const QGeoCoordinate &corner2);
 
+  void receiveOsmXml(std::string const &osmXml);
+
 private:
 };
 
