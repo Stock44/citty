@@ -1,14 +1,20 @@
-import main
+import citty
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import QtQuick.Scene3D
 import QtLocation
 import QtPositioning
+import Qt3D.Core
+import Qt3D.Render
+import Qt3D.Input
+import Qt3D.Extras
 
 ApplicationWindow {
     id: mainWindow
 
-    required property OsmImporterInterface osmImporter
+    required property OsmImporterInterface osmImporterInterface
+    required property RendererInterface rendererInterface
 
     height: 480
 
@@ -43,17 +49,42 @@ ApplicationWindow {
     OsmImportDialog {
         id: importFromOsmDialog
 
-        osmImporter: mainWindow.osmImporter
+        osmImporter: mainWindow.osmImporterInterface
     }
-
-    // Content Area
-    StackView {
-        id: mainStack
-
+    Scene3D {
         anchors.fill: parent
 
-        initialItem: Text {
-            text: qsTr('Hello world')
+        Component.onCompleted: {
+            mainWindow.rendererInterface.loadScene(scene);
+        }
+
+        Entity {
+            id: scene
+
+            components: [
+                RenderSettings {
+                    activeFrameGraph: ForwardRenderer {
+                        camera: camera
+                        clearColor: Qt.rgba(0, 0.5, 1, 1)
+                        showDebugOverlay: true
+                    }
+                },
+                InputSettings {
+                }
+            ]
+
+            Camera {
+                id: camera
+
+                aspectRatio: 16 / 9
+                farPlane: 1000.0
+                fieldOfView: 45
+                nearPlane: 0.1
+                position: Qt.vector3d(0.0, 0.0, -40.0)
+                projectionType: CameraLens.PerspectiveProjection
+                upVector: Qt.vector3d(0.0, 1.0, 0.0)
+                viewCenter: Qt.vector3d(0.0, 0.0, 0.0)
+            }
         }
     }
 }

@@ -1,4 +1,5 @@
 #include "OsmMapImporter.hpp"
+#include "RendererInterface.hpp"
 #include "interfaces/OsmImporterInterface.hpp"
 #include <QDirIterator>
 #include <QGuiApplication>
@@ -13,7 +14,7 @@ int main(int argc, char *argv[]) {
   QGuiApplication app(argc, argv);
 
   QQmlApplicationEngine engine;
-  const auto url = QUrl("qrc:/main/views/Citty.qml");
+  const auto url = QUrl("qrc:/github.com/Stock44/imports/citty/views/Citty.qml");
 
   QObject::connect(
       &engine, &QQmlApplicationEngine::objectCreated, &app,
@@ -24,10 +25,14 @@ int main(int argc, char *argv[]) {
       Qt::QueuedConnection);
 
   auto osmImporter = OsmMapImporter();
+  auto rendererInterface = new RendererInterface();
 
   engine.setInitialProperties(
-      {{"osmImporter",
-        QVariant::fromValue(new citty::OsmImporterInterface(osmImporter))}});
+      {{
+           "osmImporterInterface",
+           QVariant::fromValue(new citty::OsmImporterInterface(osmImporter)),
+       },
+       {"rendererInterface", QVariant::fromValue(rendererInterface)}});
 
   engine.load(url);
 

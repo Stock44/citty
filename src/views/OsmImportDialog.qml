@@ -1,4 +1,4 @@
-import main
+import citty
 import QtQuick
 import QtQuick.Controls
 import QtLocation

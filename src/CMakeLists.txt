@@ -9,10 +9,13 @@ find_path(OSMIUM_INCLUDE_DIRS "osmium/version.hpp")
 target_include_directories(Citty PRIVATE ${OSMIUM_INCLUDE_DIRS} interfaces)
 
 qt_add_qml_module(Citty
-        URI main
+        URI citty
+        RESOURCE_PREFIX /github.com/Stock44/imports
         SOURCES
         interfaces/OsmImporterInterface.cpp
         interfaces/OsmImporterInterface.hpp
+        interfaces/RendererInterface.cpp
+        interfaces/RendererInterface.hpp
         QML_FILES
         views/Citty.qml
         views/SelectionArea.qml
@@ -32,4 +35,8 @@ target_link_libraries(Citty
         Qt6::Location
         Qt6::Network
         Qt6::WaylandClient
+        Qt6::3DCore
+        Qt6::3DExtras
+        Qt6::3DRender
+        Qt6::3DInput
 )

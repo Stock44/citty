@@ -17,6 +17,10 @@ find_package(Qt6
         Positioning
         WaylandClient
         Network
+        3DCore
+        3DExtras
+        3DRender
+        3DInput
 )
 
 qt_standard_project_setup()
