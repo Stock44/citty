@@ -1,5 +1,5 @@
 #include "OsmMapImporter.hpp"
-#include "RendererInterface.hpp"
+#include "SceneInterface.hpp"
 #include "interfaces/OsmImporterInterface.hpp"
 #include <QDirIterator>
 #include <QGuiApplication>
@@ -25,14 +25,17 @@ int main(int argc, char *argv[]) {
       Qt::QueuedConnection);
 
   auto osmImporter = OsmMapImporter();
-  auto rendererInterface = new RendererInterface();
+  auto sceneInterface = new SceneInterface([] (auto scene) {
+    std::cout << "Loading scene" << std::endl;
+  });
+
 
   engine.setInitialProperties(
       {{
            "osmImporterInterface",
            QVariant::fromValue(new citty::OsmImporterInterface(osmImporter)),
        },
-       {"rendererInterface", QVariant::fromValue(rendererInterface)}});
+       {"sceneInterface", QVariant::fromValue(sceneInterface)}});
 
   engine.load(url);
 

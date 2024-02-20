@@ -14,7 +14,7 @@ ApplicationWindow {
     id: mainWindow
 
     required property OsmImporterInterface osmImporterInterface
-    required property RendererInterface rendererInterface
+    required property SceneInterface sceneInterface
 
     height: 480
 
@@ -55,7 +55,7 @@ ApplicationWindow {
         anchors.fill: parent
 
         Component.onCompleted: {
-            mainWindow.rendererInterface.loadScene(scene);
+            mainWindow.sceneInterface.loadScene(scene);
         }
 
         Entity {

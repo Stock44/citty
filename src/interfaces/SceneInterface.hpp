@@ -8,16 +8,20 @@
 #include <QtQmlIntegration>
 
 namespace citty {
-class RendererInterface: public QObject {
+class SceneInterface : public QObject {
   Q_OBJECT;
 
   QML_ELEMENT;
   QML_UNCREATABLE("Passed from root component to OSM import dialog.");
 
 public:
+  explicit SceneInterface(
+      std::function<void(Qt3DCore::QEntity *)> sceneLoadCallback);
+
   Q_INVOKABLE void loadScene(Qt3DCore::QEntity *scene);
 
-  void onSceneLoad(std::function<void(Qt3DCore::QEntity *)> callback);
+private:
+  std::function<void(Qt3DCore::QEntity *)> sceneLoadCallback;
 };
 
 } // namespace citty

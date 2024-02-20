@@ -14,8 +14,8 @@ qt_add_qml_module(Citty
         SOURCES
         interfaces/OsmImporterInterface.cpp
         interfaces/OsmImporterInterface.hpp
-        interfaces/RendererInterface.cpp
-        interfaces/RendererInterface.hpp
+        interfaces/SceneInterface.cpp
+        interfaces/SceneInterface.hpp
         QML_FILES
         views/Citty.qml
         views/SelectionArea.qml
