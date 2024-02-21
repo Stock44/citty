@@ -1,6 +1,7 @@
-#include "OsmMapImporter.hpp"
+#include "RoadNetwork.hpp"
 #include "SceneInterface.hpp"
 #include "interfaces/OsmImporterInterface.hpp"
+#include "osm/OsmRoadNetworkImporter.hpp"
 #include <QDirIterator>
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
@@ -14,7 +15,8 @@ int main(int argc, char *argv[]) {
   QGuiApplication app(argc, argv);
 
   QQmlApplicationEngine engine;
-  const auto url = QUrl("qrc:/github.com/Stock44/imports/citty/views/Citty.qml");
+  const auto url =
+      QUrl("qrc:/github.com/Stock44/imports/citty/views/Citty.qml");
 
   QObject::connect(
       &engine, &QQmlApplicationEngine::objectCreated, &app,
@@ -24,11 +26,11 @@ int main(int argc, char *argv[]) {
       },
       Qt::QueuedConnection);
 
-  auto osmImporter = OsmMapImporter();
-  auto sceneInterface = new SceneInterface([] (auto scene) {
-    std::cout << "Loading scene" << std::endl;
-  });
+  auto roadNetwork = RoadNetwork();
 
+  auto osmImporter = OsmRoadNetworkImporter(roadNetwork);
+  auto sceneInterface = new SceneInterface(
+      [](auto scene) { std::cout << "Loading scene" << std::endl; });
 
   engine.setInitialProperties(
       {{

@@ -6,7 +6,7 @@
 
 namespace citty {
 
-OsmImporterInterface::OsmImporterInterface(OsmMapImporter &importer)
+OsmImporterInterface::OsmImporterInterface(OsmRoadNetworkImporter &importer)
     : importer(importer) {}
 
 void OsmImporterInterface::importOsmRegion(const QGeoCoordinate &c1,

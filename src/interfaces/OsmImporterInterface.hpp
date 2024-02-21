@@ -3,7 +3,7 @@
 //
 #pragma once
 
-#include "OsmMapImporter.hpp"
+#include "osm/OsmRoadNetworkImporter.hpp"
 #include <QGeoCoordinate>
 #include <QtQmlIntegration>
 #include <iostream>
@@ -17,13 +17,13 @@ class OsmImporterInterface : public QObject {
   QML_UNCREATABLE("Passed from root component to OSM import dialog.");
 
 public:
-  explicit OsmImporterInterface(OsmMapImporter &importer);
+  explicit OsmImporterInterface(OsmRoadNetworkImporter &importer);
 
   Q_INVOKABLE
   void importOsmRegion(const QGeoCoordinate &c1, const QGeoCoordinate &c2);
 
 private:
-  OsmMapImporter &importer;
+  OsmRoadNetworkImporter &importer;
 };
 
 } // namespace citty
