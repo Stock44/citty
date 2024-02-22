@@ -2,12 +2,16 @@ qt_add_executable(Citty
         main.cpp
         osm/OsmRoadNetworkImporter.cpp
         osm/OsmRoadNetworkImporter.hpp
-        RoadNetwork.cpp
-        RoadNetwork.hpp
+        roadNetwork/RoadNetwork.cpp
+        roadNetwork/RoadNetwork.hpp
         osm/ExportHandler.cpp
         osm/ExportHandler.hpp
         osm/BoundsHandler.cpp
         osm/BoundsHandler.hpp
+        roadNetwork/RoadModel.cpp
+        roadNetwork/RoadModel.hpp
+        roadNetwork/NodeModel.cpp
+        roadNetwork/NodeModel.hpp
 )
 
 find_path(OSMIUM_INCLUDE_DIRS "osmium/version.hpp")

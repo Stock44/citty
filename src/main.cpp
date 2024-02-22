@@ -1,7 +1,7 @@
-#include "RoadNetwork.hpp"
 #include "SceneInterface.hpp"
 #include "interfaces/OsmImporterInterface.hpp"
 #include "osm/OsmRoadNetworkImporter.hpp"
+#include "roadNetwork/RoadNetwork.hpp"
 #include <QDirIterator>
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>

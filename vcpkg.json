@@ -1,56 +1,38 @@
 {
-  "name": "citty",
-  "version-string": "1.0.0",
-  "dependencies": [
-    {
-      "name": "qtbase",
-      "version>=": "6.5.0",
-      "features": [
-        "gui",
-        "widgets"
-      ]
-    },
-    {
-      "name": "qtlocation",
-      "version>=": "6.5.0"
-    },
-    {
-      "name": "qtwayland",
-      "version>=": "6.5.0"
-    },
-    {
-      "name": "qttools",
-      "version>=": "6.5.0"
-    },
-    {
-      "name": "qtdeclarative",
-      "version>=": "6.5.0"
-    },
-    {
-      "name": "qtpositioning",
-      "version>=": "6.5.0"
-    },
-    {
-      "name": "libosmium",
-      "version>=": "2.20.0#1"
-    },
-    {
-      "name": "boost-graph",
-      "version>=": "1.84.0"
-    },
-    {
-      "name": "qt3d",
-      "version>=": "6.5.0",
-      "features": [
-        "animation",
-        "assimp",
-        "extras",
-        "input",
-        "logic",
-        "render",
-        "qml"
-      ]
-    }
-  ],
-  "builtin-baseline": "6978381401d33a5ad6a3385895d12e383083712a"
+  "name" : "citty",
+  "version-string" : "1.0.0",
+  "dependencies" : [ {
+    "name" : "qtbase",
+    "version>=" : "6.5.0",
+    "features" : [ "gui", "widgets" ]
+  }, {
+    "name" : "qtlocation",
+    "version>=" : "6.5.0"
+  }, {
+    "name" : "qtwayland",
+    "version>=" : "6.5.0"
+  }, {
+    "name" : "qttools",
+    "version>=" : "6.5.0"
+  }, {
+    "name" : "qtdeclarative",
+    "version>=" : "6.5.0"
+  }, {
+    "name" : "qtpositioning",
+    "version>=" : "6.5.0"
+  }, {
+    "name" : "libosmium",
+    "version>=" : "2.20.0#1"
+  }, {
+    "name" : "boost-graph",
+    "version>=" : "1.84.0"
+  }, {
+    "name" : "qt3d",
+    "version>=" : "6.5.0",
+    "features" : [ "animation", "assimp", "extras", "input", "logic", "render", "qml" ]
+  }, {
+    "name" : "boost-unordered",
+    "version>=" : "1.84.0"
+  } ],
+  "builtin-baseline" : "6978381401d33a5ad6a3385895d12e383083712a"
 }

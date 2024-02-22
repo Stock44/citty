@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "RoadNetwork.hpp"
+#include "roadNetwork/RoadNetwork.hpp"
 #include <osmium/handler.hpp>
 #include <osmium/osm/object.hpp>
 
