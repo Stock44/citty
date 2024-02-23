@@ -4,19 +4,17 @@ qt_add_executable(Citty
         osm/OsmRoadNetworkImporter.hpp
         roadNetwork/RoadNetwork.cpp
         roadNetwork/RoadNetwork.hpp
-        osm/ExportHandler.cpp
-        osm/ExportHandler.hpp
+        osm/NodeExportHandler.cpp
+        osm/NodeExportHandler.hpp
         osm/BoundsHandler.cpp
         osm/BoundsHandler.hpp
-        roadNetwork/RoadModel.cpp
-        roadNetwork/RoadModel.hpp
-        roadNetwork/NodeModel.cpp
-        roadNetwork/NodeModel.hpp
+        osm/WayExportHandler.cpp
+        osm/WayExportHandler.hpp
 )
 
 find_path(OSMIUM_INCLUDE_DIRS "osmium/version.hpp")
 
-target_include_directories(Citty PRIVATE ${OSMIUM_INCLUDE_DIRS} interfaces)
+target_include_directories(Citty PRIVATE ${OSMIUM_INCLUDE_DIRS} interfaces models)
 
 qt_add_qml_module(Citty
         URI citty
@@ -26,6 +24,10 @@ qt_add_qml_module(Citty
         interfaces/OsmImporterInterface.hpp
         interfaces/SceneInterface.cpp
         interfaces/SceneInterface.hpp
+        models/RoadModel.cpp
+        models/RoadModel.hpp
+        models/NodeModel.cpp
+        models/NodeModel.hpp
         QML_FILES
         views/Citty.qml
         views/SelectionArea.qml

@@ -4,7 +4,8 @@
 
 #include "OsmRoadNetworkImporter.hpp"
 #include "osm/BoundsHandler.hpp"
-#include "osm/ExportHandler.hpp"
+#include "osm/NodeExportHandler.hpp"
+#include "osm/WayExportHandler.hpp"
 #include "osmium/io/xml_input.hpp"
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
@@ -53,12 +54,18 @@ void OsmRoadNetworkImporter::receiveOsmXml(std::string const &osmXml) {
   osmium::apply(reader, boundsHandler);
   reader.close();
 
-  auto exportHandler = ExportHandler(
+  auto nodeExportHandler = NodeExportHandler(
       targetNetwork, {boundsHandler.minLatitude(), boundsHandler.maxLatitude()},
       {boundsHandler.minLongitude(), boundsHandler.maxLongitude()});
 
   auto reader2 = osmium::io::Reader(file);
-  osmium::apply(reader2, exportHandler);
+  osmium::apply(reader2, nodeExportHandler);
   reader2.close();
+
+  auto wayExportHandler =
+      WayExportHandler(targetNetwork, nodeExportHandler.getNodeMap());
+  auto reader3 = osmium::io::Reader(file);
+  osmium::apply(reader3, wayExportHandler);
+  reader3.close();
 }
 } // namespace citty

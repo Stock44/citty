@@ -1,5 +1,6 @@
 #include "SceneInterface.hpp"
 #include "interfaces/OsmImporterInterface.hpp"
+#include "models/RoadModel.hpp"
 #include "osm/OsmRoadNetworkImporter.hpp"
 #include "roadNetwork/RoadNetwork.hpp"
 #include <QDirIterator>
@@ -28,16 +29,20 @@ int main(int argc, char *argv[]) {
 
   auto roadNetwork = RoadNetwork();
 
+  auto roadModel = RoadModel(roadNetwork);
+
   auto osmImporter = OsmRoadNetworkImporter(roadNetwork);
-  auto sceneInterface = new SceneInterface(
+  auto sceneInterface = SceneInterface(
       [](auto scene) { std::cout << "Loading scene" << std::endl; });
+  auto importerInterface = OsmImporterInterface(osmImporter);
 
   engine.setInitialProperties(
       {{
            "osmImporterInterface",
-           QVariant::fromValue(new citty::OsmImporterInterface(osmImporter)),
+           QVariant::fromValue(&importerInterface),
        },
-       {"sceneInterface", QVariant::fromValue(sceneInterface)}});
+       {"sceneInterface", QVariant::fromValue(&sceneInterface)},
+       {"roadModel", QVariant::fromValue(&roadModel)}});
 
   engine.load(url);
 

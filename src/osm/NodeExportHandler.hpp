@@ -10,22 +10,26 @@
 
 namespace citty {
 
-class ExportHandler : public osmium::handler::Handler {
+inline double degToRad(double deg) { return deg * std::numbers::pi / 180.0; }
+double latitudeDistance(double lat1, double lat2);
+double longitudeDistance(double lat, double lon1, double lon2);
+
+class NodeExportHandler : public osmium::handler::Handler {
 public:
-  ExportHandler(RoadNetwork &targetNetwork,
+  NodeExportHandler(RoadNetwork &targetNetwork,
                 std::pair<double, double> latitudeBounds,
                 std::pair<double, double> longitudeBounds);
 
-  void way(osmium::Way const &way);
 
   void node(osmium::Node const &node);
 
+  const std::unordered_map<osmium::object_id_type, RoadNetwork::Id> &
+  getNodeMap() const;
+
 private:
   RoadNetwork &targetNetwork;
-  std::unordered_map<osmium::object_id_type, NodeId> nodeMap;
+  std::unordered_map<osmium::object_id_type, RoadNetwork::Id> nodeMap;
 
-  std::pair<double, double> latitudeBounds;
-  std::pair<double, double> longitudeBounds;
   double centerLatitude;
   double centerLongitude;
   double latitudeRange;
