@@ -17,7 +17,7 @@ void NodeExportHandler::node(osmium::Node const &node) {
   auto z = latitudeDistance(location.lat(), centerLatitude);
 
   auto nodeId = targetNetwork.addNode(
-      {QVector3D(location.lon() > centerLongitude ? x : -x, 0,
+      {QVector3D(location.lon() > centerLongitude ? -x : x, 0,
                  location.lat() > centerLatitude ? z : -z)});
   auto [it, ok] = nodeMap.try_emplace(node.id(), nodeId);
 
