@@ -10,11 +10,13 @@ qt_add_executable(Citty
         osm/BoundsHandler.hpp
         osm/WayExportHandler.cpp
         osm/WayExportHandler.hpp
+        qmlElements/CittyCameraController.cpp
+        qmlElements/CittyCameraController.hpp
 )
 
 find_path(OSMIUM_INCLUDE_DIRS "osmium/version.hpp")
 
-target_include_directories(Citty PRIVATE ${OSMIUM_INCLUDE_DIRS} interfaces models)
+target_include_directories(Citty PRIVATE ${OSMIUM_INCLUDE_DIRS} interfaces models qmlElements)
 
 qt_add_qml_module(Citty
         URI citty

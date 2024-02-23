@@ -80,17 +80,17 @@ ApplicationWindow {
             Camera {
                 id: camera
 
-                farPlane: 1000.0
+                farPlane: 10000.0
                 fieldOfView: 45
-                nearPlane: 1
-                position: Qt.vector3d(0.0, 0.0, 20.0)
+                nearPlane: 10.0
+                position: Qt.vector3d(0.0, 0.0, 200.0)
                 projectionType: CameraLens.PerspectiveProjection
                 upVector: Qt.vector3d(0.0, 1.0, 0.0)
                 viewCenter: Qt.vector3d(0.0, 0.0, 0.0)
             }
-            FirstPersonCameraController {
+            CittyCameraController {
                 camera: camera
-                linearSpeed: 25
+                linearSpeed: 100
             }
             NodeInstantiator {
                 id: roads
@@ -99,10 +99,11 @@ ApplicationWindow {
 
                 delegate: Entity {
                     id: roadDelegate
+
                     required property vector3d center
                     required property int lanes
-                    required property real rotation
                     required property real length
+                    required property real rotation
 
                     components: [sphereMesh, sphereMaterial, sphereTransform]
 
@@ -110,7 +111,8 @@ ApplicationWindow {
                         id: sphereMesh
 
                         height: length
-                        width: lanes * 1.5
+                        width: lanes * 3
+                        meshResolution: "2x2";
                     }
                     Transform {
                         id: sphereTransform
