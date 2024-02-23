@@ -26,8 +26,23 @@ void WayExportHandler::way(osmium::Way const &way) {
       continue;
     }
 
-    // TODO extract lanes
-    auto roadId = targetNetwork.addRoad(prevNodeId.value(), currentNodeId, {1});
+    auto lanes = 1;
+
+    if (way.tags().has_key("lanes:forward")) {
+      lanes = std::stoi(way.tags().get_value_by_key("lanes:forward"));
+    } else if (way.tags().has_key("lanes")) {
+      lanes = std::stoi(way.tags().get_value_by_key("lanes"));
+    }
+
+    targetNetwork.addRoad(prevNodeId.value(), currentNodeId, {lanes});
+
+    if (std::strcmp(way.tags().get_value_by_key("oneway", "yes"), "yes") != 0) {
+      auto reverseLanes = 1;
+      if (way.tags().has_key("lanes:backward")) {
+        reverseLanes = std::stoi(way.tags().get_value_by_key("lanes:backward"));
+      }
+      targetNetwork.addRoad(currentNodeId, prevNodeId.value(), {reverseLanes});
+    }
 
     prevNodeId = currentNodeId;
   }
