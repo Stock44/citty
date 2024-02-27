@@ -8,209 +8,79 @@
 
 namespace citty {
 
-RoadNetwork::Id RoadNetwork::addRoad(Id n1, Id n2, RoadProperties properties) {
-  Id id;
-
-  auto node1 = nodes.at(n1);
-
-  auto node2 = nodes.at(n2);
-
-  bool usedFreedId = !freedRoadIds.empty();
-
-  if (freedRoadIds.empty()) {
-    id = roads.size();
-  } else {
-    id = freedRoadIds.top();
-    freedRoadIds.pop();
-  }
-
-  emit roadAboutToBeCreated(id);
-  auto [road, ok] = boost::add_edge(node1, node2, graph);
+RoadNetwork::RoadId RoadNetwork::addRoad(NodeId n1, NodeId n2,
+                                         RoadProperties properties) {
+  auto [id, ok] = boost::add_edge(n1, n2, graph);
 
   if (!ok) {
-    emit roadCreationFinished({});
     throw std::runtime_error("could not add edge to graph");
   }
 
-  auto [roadIt, roadOk] = roads.try_emplace(id, road);
-  if (!roadOk) {
-    if (usedFreedId) {
-      freedRoadIds.push(id);
-    }
-    boost::remove_edge(road, graph);
-    emit roadCreationFinished({});
-    throw std::runtime_error("could not register road edge descriptor");
-  }
+  graph[id] = properties;
 
-  auto [roadIdIt, roadIdOk] = roadIds.try_emplace(road, roads.size());
-  if (!roadIdOk) {
-    if (usedFreedId) {
-      freedRoadIds.push(id);
-    }
-    boost::remove_edge(road, graph);
-    roads.erase(id);
-    emit roadCreationFinished({});
-    throw std::runtime_error("could not register road edge descriptor");
-  }
-
-  graph[road] = properties;
-
-  emit roadCreationFinished(id);
+  emit roadAdded(id);
 
   return id;
 }
 
-RoadNetwork::Id RoadNetwork::addNode(NodeProperties properties) {
+RoadNetwork::NodeId RoadNetwork::addNode(NodeProperties properties) {
+  auto id = boost::add_vertex(graph);
 
-  Id id;
-  bool usedFreedId = !freedNodeIds.empty();
+  graph[id] = properties;
 
-  if (freedNodeIds.empty()) {
-    id = nodes.size();
-  } else {
-    id = freedNodeIds.top();
-    freedNodeIds.pop();
-  }
-
-  emit nodeAboutToBeCreated(id);
-
-  auto node = boost::add_vertex(graph);
-
-  auto [nodeIt, nodeOk] = nodes.try_emplace(id, node);
-  if (!nodeOk) {
-    if (usedFreedId)
-      freedNodeIds.push(id);
-    boost::remove_vertex(node, graph);
-    emit nodeCreationFinished({});
-    throw std::runtime_error("could not register node vertex descriptor");
-  }
-  auto [nodeIdIt, nodeIdOk] = nodeIds.try_emplace(node, id);
-  if (!nodeIdOk) {
-    if (usedFreedId)
-      freedNodeIds.push(id);
-    boost::remove_vertex(node, graph);
-    nodes.erase(id);
-    emit nodeCreationFinished({});
-    throw std::runtime_error("could not register node vertex descriptor");
-  }
-
-  graph[node] = properties;
-
-  emit nodeCreationFinished(id);
+  emit nodeAdded(id);
 
   return id;
 }
 
-NodeProperties const &RoadNetwork::getNode(Id id) const {
-  auto node = nodes.at(id);
-
-  return graph[node];
+NodeProperties const &RoadNetwork::getNode(NodeId id) const {
+  return graph[id];
 }
 
-RoadProperties const &RoadNetwork::getRoad(Id id) const {
-  auto road = roads.at(id);
-
-  return graph[road];
+RoadProperties const &RoadNetwork::getRoad(RoadId id) const {
+  return graph[id];
 }
 
-RoadNetwork::Id RoadNetwork::source(Id id) const {
-  try {
-    auto road = roads.at(id);
-
-    auto source = boost::source(roads.at(id), graph);
-
-    return nodeIds.at(source);
-  } catch (...) {
-    return {};
-  }
+RoadNetwork::NodeId RoadNetwork::source(RoadId id) const {
+  return boost::source(id, graph);
 }
 
-RoadNetwork::Id RoadNetwork::target(Id id) const {
-  auto road = roads.at(id);
-
-  auto source = boost::target(roads.at(id), graph);
-
-  return nodeIds.at(source);
+RoadNetwork::NodeId RoadNetwork::target(RoadId id) const {
+  return boost::target(id, graph);
 }
 
-void RoadNetwork::updateNode(Id id, NodeProperties update) {
-  graph[nodes.at(id)] = update;
+void RoadNetwork::updateNode(NodeId id, NodeProperties update) {
+  graph[id] = update;
   emit nodeUpdated(id);
 }
 
-void RoadNetwork::updateRoad(Id id, RoadProperties update) {
-  graph[roads.at(id)] = update;
+void RoadNetwork::updateRoad(RoadId id, RoadProperties update) {
+  graph[id] = update;
   emit roadUpdated(id);
 }
 
-void RoadNetwork::deleteNode(Id id) {
-
-  if (!nodes.contains(id))
-    throw std::runtime_error("node does not exist");
-
-  auto node = nodes[id];
-
-  auto [outEdgesBegin, outEdgesEnd] = boost::out_edges(node, graph);
-  auto [inEdgesBegin, inEdgesEnd] = boost::in_edges(node, graph);
+void RoadNetwork::deleteNode(NodeId id) {
+  auto [outEdgesBegin, outEdgesEnd] = boost::out_edges(id, graph);
+  auto [inEdgesBegin, inEdgesEnd] = boost::in_edges(id, graph);
 
   std::for_each(outEdgesBegin, outEdgesEnd,
-                [this](auto roadId) { deleteRoad(roadIds.at(roadId)); });
+                [this](auto roadId) { deleteRoad(roadId); });
 
   std::for_each(inEdgesBegin, inEdgesEnd,
-                [this](auto roadId) { deleteRoad(roadIds.at(roadId)); });
+                [this](auto roadId) { deleteRoad(roadId); });
 
-  emit nodeAboutToBeDeleted(id);
+  boost::remove_vertex(id, graph);
 
-  auto delCount = nodes.erase(id);
-  if (delCount == 0) {
-    emit nodeDeletionFinished({});
-    throw std::runtime_error("could not delete node vertex descriptor");
-  }
-
-  delCount = nodeIds.erase(node);
-  if (delCount == 0) {
-    nodes.emplace(id, node);
-    emit nodeDeletionFinished({});
-    throw std::runtime_error("could not delete node vertex descriptor");
-  }
-
-  freedNodeIds.push(id);
-
-  boost::remove_vertex(node, graph);
-
-  emit nodeDeletionFinished(id);
+  emit nodeDeleted(id);
 }
 
-void RoadNetwork::deleteRoad(Id id) {
-  if (!roads.contains(id))
-    throw std::runtime_error("road doesn't exist");
+void RoadNetwork::deleteRoad(RoadId id) {
+  boost::remove_edge(id, graph);
 
-  emit roadAboutToBeDeleted(id);
-
-  auto road = roads[id];
-
-  auto delCount = roads.erase(id);
-
-  if (delCount == 0) {
-    emit roadDeletionFinished({});
-    throw std::runtime_error("could not delete road edge descriptor");
-  }
-
-  delCount = roadIds.erase(road);
-
-  if (delCount == 0) {
-    roads.emplace(id, road);
-    emit roadDeletionFinished({});
-    throw std::runtime_error("could not delete road edge descriptor");
-  }
-
-  freedRoadIds.emplace(id);
-
-  boost::remove_edge(road, graph);
-
-  emit roadDeletionFinished(id);
+  emit roadDeleted(id);
 }
-std::size_t RoadNetwork::roadCount() { return roads.size(); }
-std::size_t RoadNetwork::nodeCount() { return nodes.size(); }
+std::size_t RoadNetwork::roadCount() { return boost::num_edges(graph); }
+std::size_t RoadNetwork::nodeCount() { return boost::num_vertices(graph); }
+
 
 } // namespace citty

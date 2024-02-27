@@ -42,7 +42,7 @@ NodeExportHandler::NodeExportHandler(RoadNetwork &targetNetwork,
   centerLatitude = latitudeBounds.first + latitudeRange / 2.0;
   centerLongitude = longitudeBounds.first + longitudeRange / 2.0;
 }
-const std::unordered_map<osmium::object_id_type, RoadNetwork::Id> &
+const std::unordered_map<osmium::object_id_type, RoadNetwork::NodeId> &
 NodeExportHandler::getNodeMap() const {
   return nodeMap;
 }

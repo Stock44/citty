@@ -23,12 +23,12 @@ public:
 
   void node(osmium::Node const &node);
 
-  const std::unordered_map<osmium::object_id_type, RoadNetwork::Id> &
+  const std::unordered_map<osmium::object_id_type, RoadNetwork::NodeId> &
   getNodeMap() const;
 
 private:
   RoadNetwork &targetNetwork;
-  std::unordered_map<osmium::object_id_type, RoadNetwork::Id> nodeMap;
+  std::unordered_map<osmium::object_id_type, RoadNetwork::NodeId> nodeMap;
 
   double centerLatitude;
   double centerLongitude;

@@ -14,7 +14,7 @@ void WayExportHandler::way(osmium::Way const &way) {
   if (!allowedHighwayTypes.contains(way.tags().get_value_by_key("highway"))) {
     return;
   }
-  auto prevNodeId = std::optional<RoadNetwork::Id>{};
+  auto prevNodeId = std::optional<RoadNetwork::NodeId>{};
 
   for (auto node : way.nodes()) {
     if (!nodeMap.contains(node.ref()))
@@ -49,6 +49,6 @@ void WayExportHandler::way(osmium::Way const &way) {
 }
 WayExportHandler::WayExportHandler(
     RoadNetwork &targetNetwork,
-    std::unordered_map<osmium::object_id_type, RoadNetwork::Id> const &nodeMap)
+    std::unordered_map<osmium::object_id_type, RoadNetwork::NodeId> const &nodeMap)
     : targetNetwork(targetNetwork), nodeMap(nodeMap) {}
 } // namespace citty

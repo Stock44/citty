@@ -12,6 +12,8 @@ qt_add_executable(Citty
         osm/WayExportHandler.hpp
         qmlElements/CittyCameraController.cpp
         qmlElements/CittyCameraController.hpp
+        RoadLineInstancedGeometry.hpp
+        RoadLineInstancedGeometry.cpp
 )
 
 find_path(OSMIUM_INCLUDE_DIRS "osmium/version.hpp")

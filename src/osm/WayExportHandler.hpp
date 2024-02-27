@@ -13,13 +13,13 @@ class WayExportHandler : public osmium::handler::Handler {
 public:
   WayExportHandler(RoadNetwork &targetNetwork,
                    std::unordered_map<osmium::object_id_type,
-                                      RoadNetwork::Id> const &nodeMap);
+                                      RoadNetwork::NodeId> const &nodeMap);
 
   void way(osmium::Way const &way);
 
 private:
   RoadNetwork &targetNetwork;
-  std::unordered_map<osmium::object_id_type, RoadNetwork::Id> const &nodeMap;
+  std::unordered_map<osmium::object_id_type, RoadNetwork::NodeId> const &nodeMap;
   const std::unordered_set<std::string> allowedHighwayTypes = {
       "motorway",
       "trunk",

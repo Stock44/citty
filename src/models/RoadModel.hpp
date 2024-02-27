@@ -14,7 +14,7 @@ class RoadModel : public QAbstractListModel {
   QML_ELEMENT
   QML_UNCREATABLE("passed from initial properties")
 public:
-  enum RoadRoles { lanes = Qt::UserRole + 1, center, rotation, length };
+  enum RoadRoles { lanes = Qt::UserRole + 1, source, target, rotation, length };
 
   /**
    * @brief Constructs a RoadModel object.
@@ -62,15 +62,6 @@ public:
   [[nodiscard]] QVariant data(const QModelIndex &index,
                               int role = Qt::DisplayRole) const override;
 
-public slots:
-  void beforeRoadCreation(RoadNetwork::Id id);
-  void finishedRoadCreation(std::optional<RoadNetwork::Id> id);
-
-  void beforeRoadDeletion(RoadNetwork::Id id);
-  void finishedRoadDeletion(std::optional<RoadNetwork::Id> id);
-
-  void onRoadUpdate(RoadNetwork::Id id);
-
 protected:
   /**
    * @brief Returns the role names for the model.
@@ -83,7 +74,15 @@ protected:
   [[nodiscard]] QHash<int, QByteArray> roleNames() const override;
 
 private:
+  void onRoadAdded(RoadNetwork::RoadId id);
+
+  void onRoadDeleted(RoadNetwork::RoadId id);
+
+  void onRoadUpdated(RoadNetwork::RoadId id);
+
   RoadNetwork &roadNetwork;
+  std::vector<RoadNetwork::RoadId> roads;
+  boost::unordered_flat_map<RoadNetwork::RoadId, std::size_t> roadIdRowMap;
 };
 
 } // namespace citty

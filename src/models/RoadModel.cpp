@@ -3,53 +3,51 @@
 //
 
 #include "RoadModel.hpp"
+#include <ranges>
 
 namespace citty {
 
 RoadModel::RoadModel(RoadNetwork &roadNetwork, QObject *parent)
     : QAbstractListModel(parent), roadNetwork(roadNetwork) {
-  QObject::connect(&roadNetwork, &RoadNetwork::roadAboutToBeCreated, this,
-                   &RoadModel::beforeRoadCreation);
-  QObject::connect(&roadNetwork, &RoadNetwork::roadCreationFinished, this,
-                   &RoadModel::finishedRoadCreation);
-  QObject::connect(&roadNetwork, &RoadNetwork::roadAboutToBeDeleted, this,
-                   &RoadModel::beforeRoadDeletion);
-  QObject::connect(&roadNetwork, &RoadNetwork::roadDeletionFinished, this,
-                   &RoadModel::finishedRoadDeletion);
+  QObject::connect(&roadNetwork, &RoadNetwork::roadAdded, this,
+                   &RoadModel::onRoadAdded);
+  QObject::connect(&roadNetwork, &RoadNetwork::roadDeleted, this,
+                   &RoadModel::onRoadDeleted);
   QObject::connect(&roadNetwork, &RoadNetwork::roadUpdated, this,
-                   &RoadModel::onRoadUpdate);
+                   &RoadModel::onRoadUpdated);
+
+  std::ranges::copy(roadNetwork.roads(), std::back_inserter(roads));
+  for (auto const &[idx, roadId] : std::views::enumerate(roadNetwork.roads())) {
+    roadIdRowMap.try_emplace(roadId, idx);
+  }
 }
 
 int RoadModel::rowCount(const QModelIndex &parent) const {
   Q_UNUSED(parent);
 
-  return roadNetwork.roadCount();
+  return roads.size();
 }
 
 QVariant RoadModel::data(const QModelIndex &index, int role) const {
   if (index.row() < 0)
     return {};
 
-  auto roadId = index.row();
+  auto roadRow = index.row();
 
-  auto road = roadNetwork.getRoad(roadId);
+  auto roadId = roads.at(roadRow);
 
   if (role == RoadRoles::lanes) {
-    return road.lanes;
-  } else if (role == RoadRoles::center) {
-    auto sourceId = roadNetwork.source(roadId);
-    auto targetId = roadNetwork.target(roadId);
-    auto source = roadNetwork.getNode(sourceId);
-    auto target = roadNetwork.getNode(targetId);
+    return roadNetwork.getRoad(roadId).lanes;
+  } else if (role == RoadRoles::source) {
+    auto source = roadNetwork.getNode(roadId.m_source);
+    return source.position;
+  } else if (role == RoadRoles::target) {
+    auto target = roadNetwork.getNode(roadId.m_target);
 
-    auto position =
-        source.position + ((target.position - source.position) / 2.0f);
-    return position;
+    return target.position;
   } else if (role == RoadRoles::rotation) {
-    auto sourceId = roadNetwork.source(roadId);
-    auto targetId = roadNetwork.target(roadId);
-    auto source = roadNetwork.getNode(sourceId);
-    auto target = roadNetwork.getNode(targetId);
+    auto source = roadNetwork.getNode(roadId.m_source);
+    auto target = roadNetwork.getNode(roadId.m_target);
 
     if (qFuzzyCompare(target.position, source.position)) {
       return {};
@@ -63,12 +61,10 @@ QVariant RoadModel::data(const QModelIndex &index, int role) const {
       return 0;
     }
 
-    return rotation * 180.0f / std::numbers::pi_v<float> ;
+    return rotation * 180.0f / std::numbers::pi_v<float>;
   } else if (role == RoadRoles::length) {
-    auto sourceId = roadNetwork.source(roadId);
-    auto targetId = roadNetwork.target(roadId);
-    auto source = roadNetwork.getNode(sourceId);
-    auto target = roadNetwork.getNode(targetId);
+    auto source = roadNetwork.getNode(roadId.m_source);
+    auto target = roadNetwork.getNode(roadId.m_target);
 
     auto length = (target.position - source.position).length();
 
@@ -85,26 +81,31 @@ QHash<int, QByteArray> RoadModel::roleNames() const {
   QHash<int, QByteArray> roles;
 
   roles[RoadRoles::lanes] = "lanes";
-  roles[RoadRoles::center] = "center";
+  roles[RoadRoles::source] = "origin";
+  roles[RoadRoles::target] = "target";
   roles[RoadRoles::rotation] = "rotation";
   roles[RoadRoles::length] = "length";
 
   return roles;
 }
-void RoadModel::beforeRoadCreation(RoadNetwork::Id id) {
-  beginInsertRows(QModelIndex(), id, id);
-}
-void RoadModel::finishedRoadCreation(std::optional<RoadNetwork::Id> id) {
+void RoadModel::onRoadAdded(RoadNetwork::RoadId id) {
+  beginInsertRows(QModelIndex(), roads.size(), roads.size());
+  roadIdRowMap.try_emplace(id, roads.size());
+  roads.push_back(id);
   endInsertRows();
 }
-void RoadModel::beforeRoadDeletion(RoadNetwork::Id id) {
-  beginRemoveRows(QModelIndex(), id, id);
-}
-void RoadModel::finishedRoadDeletion(std::optional<RoadNetwork::Id> id) {
+
+void RoadModel::onRoadDeleted(RoadNetwork::RoadId id) {
+  auto roadRow = roadIdRowMap.at(id);
+  beginRemoveRows(QModelIndex(), roadRow, roadRow);
+  roadIdRowMap.erase(id);
+  roads.erase(roads.begin() + roadRow);
   endRemoveRows();
 }
-void RoadModel::onRoadUpdate(RoadNetwork::Id id) {
-  dataChanged(index(id), index(id));
+
+void RoadModel::onRoadUpdated(RoadNetwork::RoadId id) {
+  auto roadRow = roadIdRowMap.at(id);
+  dataChanged(index(roadRow), index(roadRow));
 }
 
 } // namespace citty

@@ -25,30 +25,37 @@ namespace citty {
 class RoadNetwork : public QObject {
   Q_OBJECT
 public:
-  using Id = std::size_t;
+  // using lists for containers as they don't invalidate descriptors when
+  // deleting vertices
+  using Graph =
+      boost::adjacency_list<boost::listS, boost::listS, boost::bidirectionalS,
+                            NodeProperties, RoadProperties>;
+
+  using RoadId = Graph::edge_descriptor;
+  using NodeId = Graph::vertex_descriptor;
 
   /**
    * @brief Adds a road between two nodes in the road network.
    *
    * This function creates a road between the specified nodes in the road
-   * network. It uses the provided RoadProperties object to set the properties
-   * of the road. If no properties are provided, a default RoadProperties object
-   * will be used.
+   * network. It uses the provided RoadProperties object to set the
+   * properties of the road. If no properties are provided, a default
+   * RoadProperties object will be used.
    *
    * If successful, this function returns the unique identifier (Id) of the
-   * newly created road. The Id can be used to reference the road in other parts
-   * of the code.
+   * newly created road. The Id can be used to reference the road in other
+   * parts of the code.
    *
    * @param n1 The identifier of the first node connected by the road.
    * @param n2 The identifier of the second node connected by the road.
    * @param properties The properties of the road (optional).
    * @return The unique identifier (Id) of the newly created road.
    *
-   * @throws std::runtime_error if an error occurs during the addition of the
-   * road
+   * @throws std::runtime_error if an error occurs during the addition of
+   * the road
    */
-  Id addRoad(std::size_t n1, std::size_t n2,
-             RoadProperties properties = RoadProperties());
+  RoadId addRoad(NodeId n1, NodeId n2,
+                 RoadProperties properties = RoadProperties());
 
   /**
    * @brief Adds a new node to the road network with the specified properties.
@@ -56,7 +63,7 @@ public:
    * @param properties The properties of the new node (optional).
    * @return The ID of the new node.
    */
-  Id addNode(NodeProperties properties = NodeProperties());
+  NodeId addNode(NodeProperties properties = NodeProperties());
 
   /**
    * @brief Updates the properties of a node in the road network.
@@ -69,7 +76,7 @@ public:
    *
    * @see NodeProperties, Id
    */
-  void updateNode(Id id, NodeProperties update);
+  void updateNode(NodeId id, NodeProperties update);
 
   /**
    * @brief Updates the properties of a road in the road network.
@@ -83,7 +90,7 @@ public:
    *
    * @see RoadProperties, Id
    */
-  void updateRoad(Id id, RoadProperties update);
+  void updateRoad(RoadId id, RoadProperties update);
 
   /**
    * @brief Retrieves the source node id of a road.
@@ -94,7 +101,7 @@ public:
    * @param id The id of the road.
    * @return The id of the source node.
    */
-  [[nodiscard]] Id source(Id id) const;
+  [[nodiscard]] NodeId source(RoadId id) const;
 
   /**
    * @brief Retrieves the target node id of a road.
@@ -105,7 +112,7 @@ public:
    * @param id The id of the road.
    * @return Id The id of the target node.
    */
-  [[nodiscard]] Id target(Id id) const;
+  [[nodiscard]] NodeId target(RoadId id) const;
 
   /**
    * @brief Retrieves the properties of a node with the given id.
@@ -119,14 +126,14 @@ public:
    *
    * @see NodeProperties, Id
    */
-  [[nodiscard]] NodeProperties const &getNode(Id id) const;
+  [[nodiscard]] NodeProperties const &getNode(NodeId id) const;
 
   /**
    * @brief Retrieves the properties of a road with the given id.
    *
    * This function returns a const reference to the RoadProperties object that
    * contains the properties of the road with the given id in the road*/
-  [[nodiscard]] RoadProperties const &getRoad(Id id) const;
+  [[nodiscard]] RoadProperties const &getRoad(RoadId id) const;
 
   /**
    * This function returns the total number of roads present in the RoadNetwork.
@@ -154,7 +161,7 @@ public:
    * @see nodeAboutToBeDeleted()
    * @see nodeDeletionFinished(Id nodeId)
    */
-  void deleteNode(Id id);
+  void deleteNode(NodeId id);
 
   /**
    * @brief Deletes a road from the road network.
@@ -166,100 +173,61 @@ public:
    *
    * @param id The ID of the road to delete.
    */
-  void deleteRoad(Id id);
+  void deleteRoad(RoadId id);
+
+  [[nodiscard]] auto roads() const {
+    auto [it, end] = boost::edges(graph);
+
+    return std::ranges::subrange(it, end);
+  }
+
+  [[nodiscard]] auto nodes() const {
+    auto [it, end] = boost::vertices(graph);
+
+    return std::ranges::subrange(it, end);
+  }
 
 signals:
+  /**
+   * @brief Emitted when a new node is created in the network.
+   */
+  void nodeAdded(NodeId id);
 
   /**
-   * @brief Emitted before a new node is created in the network.
-   *
-   * @param id The id of the new node.
+   * @brief Emitted when a new road is added to the network.
    */
-  void nodeAboutToBeCreated(Id id);
-
-  /**
-   * @brief Emitted after a new node is created in the network.
-   *
-   * @param id The id of the new node, or std::nullopt if the creation failed.
-   */
-  void nodeCreationFinished(std::optional<Id> id);
-
-  /**
-   * @brief Emitted before a new road is created in the network.
-   *
-   * @param id The id of the new road.
-   */
-  void roadAboutToBeCreated(Id id);
-
-  /**
-   * @brief Emitted after a new road is created in the network.
-   *
-   * @param id The id of the new road, or std::nullopt if the creation failed.
-   */
-  void roadCreationFinished(std::optional<Id> id);
+  void roadAdded(RoadId id);
 
   /**
    * @brief Emitted after a node is updated in the network.
    *
    * @param id The id of the updated node.
    */
-  void nodeUpdated(Id id);
+  void nodeUpdated(NodeId id);
 
   /**
    * @brief Emitted after a road is updated in the network.
    *
    * @param id The id of the updated road.
    */
-  void roadUpdated(Id id);
+  void roadUpdated(RoadId id);
 
   /**
-   * @brief Emitted before a node is deleted from the network.
+   * @brief Emitted when a node is deleted from the network.
    *
-   * @param id The id of the node.
+   * @param id The id of the node to be deleted.
    */
-  void nodeAboutToBeDeleted(Id id);
+  void nodeDeleted(NodeId);
 
   /**
-   * @brief Emitted after a node is deleted from the network.
+   * @brief Emitted when a road is deleted from the network.
    *
-   * @param id The id of the deleted node, or std::nullopt if the deletion
-   * failed.
+   * @param id The id of the road to be deleted.
    */
-  void nodeDeletionFinished(std::optional<Id> id);
-
-  /**
-   * @brief Emitted before a road is deleted from the network.
-   *
-   * @param id The id of the road.
-   */
-  void roadAboutToBeDeleted(Id id);
-
-  /**
-   * @brief Emitted after a road is deleted from the network.
-   *
-   * @param id The id of the deleted road, or std::nullopt if the deletion
-   * failed.
-   */
-  void roadDeletionFinished(std::optional<Id> id);
+  void roadDeleted(RoadId id);
 
 private:
-  // using lists for containers as they don't invalidate descriptors when
-  // deleting vertices
-  using Graph =
-      boost::adjacency_list<boost::listS, boost::listS, boost::bidirectionalS,
-                            NodeProperties, RoadProperties>;
-
   Graph graph;
-
-  std::stack<Id> freedRoadIds;
-
-  std::stack<Id> freedNodeIds;
-
-  boost::unordered_flat_map<Id, Graph::edge_descriptor> roads;
-  boost::unordered_flat_map<Id, Graph::vertex_descriptor> nodes;
-
-  boost::unordered_flat_map<Graph::edge_descriptor, Id> roadIds;
-  boost::unordered_flat_map<Graph::vertex_descriptor, Id> nodeIds;
 };
 
 } // namespace citty
